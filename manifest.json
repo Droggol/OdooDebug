@@ -1,6 +1,6 @@
 {
     "name": "Odoo Debug",
-    "version": "3.3",
+    "version": "3.4",
     "manifest_version": 2,
     "description": "Toggle debug mode of Odoo webpage",
     "short_name": "Odoo Debug",
