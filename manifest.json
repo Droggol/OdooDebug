@@ -1,8 +1,10 @@
 {
     "name": "Odoo Debug",
-    "version": "3.0",
+    "version": "3.3",
     "manifest_version": 2,
     "description": "Toggle debug mode of Odoo webpage",
+    "short_name": "Odoo Debug",
+    "offline_enabled": true,
     "browser_action": {
         "default_icon": "off.png",
         "default_title": "- Click for Debug \n- Double Click for Assets Debug"
