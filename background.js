@@ -21,7 +21,7 @@ var onClickListener = function (callback) {
     throw new Error('[InvalidArgumentException]');
 };
 
-chrome.browserAction.onClicked.addListener(
+browser.browserAction.onClicked.addListener(
     new onClickListener(
         function onclick(tab, click) {
             changeUrl(tab, click);
@@ -37,26 +37,26 @@ function changeUrl (tab, click) {
     if (el.search.indexOf('?debug') !== -1) {
         if (click==2 && el.search.indexOf('?debug=assets') === -1) {
             url = el.origin + el.pathname + '?debug=assets' + el.hash;
-            chrome.browserAction.setIcon({'path': 'super_on.png'});
+            browser.browserAction.setIcon({'path': 'super_on.png'});
         } else {
             url = el.origin + el.pathname + el.hash;
-            chrome.browserAction.setIcon({'path': 'off.png'});
+            browser.browserAction.setIcon({'path': 'off.png'});
         }
     } else {
         if (click==1) {
             url = el.origin + el.pathname + '?debug' + el.hash;
-            chrome.browserAction.setIcon({'path': 'on.png'});
+            browser.browserAction.setIcon({'path': 'on.png'});
         } else {
             url = el.origin + el.pathname + '?debug=assets' + el.hash;
-            chrome.browserAction.setIcon({'path': 'super_on.png'});
+            browser.browserAction.setIcon({'path': 'super_on.png'});
         }
     }
 
-    chrome.tabs.update(tab.id, {'url': url});
+    browser.tabs.update(tab.id, {'url': url});
 }
 
 function changeIcon () {
-    chrome.tabs.query({active: true, currentWindow: true}, function (tab) {
+    browser.tabs.query({active: true, currentWindow: true}, function (tab) {
         var icon = 'off.png';
         var el = document.createElement('a');
         el.href = tab[0].url;
@@ -68,10 +68,10 @@ function changeIcon () {
             }
         }
 
-        chrome.browserAction.setIcon({'path': icon});
+        browser.browserAction.setIcon({'path': icon});
     });
 }
 
-chrome.tabs.onActivated.addListener(function () { changeIcon(); });
-chrome.tabs.onUpdated.addListener(function () { changeIcon(); });
-chrome.windows.onFocusChanged.addListener(function () { changeIcon(); });
+browser.tabs.onActivated.addListener(function () { changeIcon(); });
+browser.tabs.onUpdated.addListener(function () { changeIcon(); });
+browser.windows.onFocusChanged.addListener(function () { changeIcon(); });
