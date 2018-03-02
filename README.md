@@ -2,7 +2,8 @@
 Plugin for Quick Debug in Odoo
 
 ### Installation
-Chrome user install it from chrome web store <a href="https://chrome.google.com/webstore/detail/odoo-debug/hmdmhilocobgohohpdpolmibjklfgkbi">OdooDebug</a>
+- Chrome: install it from <a href="https://chrome.google.com/webstore/detail/odoo-debug/hmdmhilocobgohohpdpolmibjklfgkbi">chrome web store</a>
+- Firefox: install it from <a href="https://addons.mozilla.org/en-US/firefox/addon/odoo-debug/">AMO</a>
 
 ### How to use?
 - Single click for normal debug
