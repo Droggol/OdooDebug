@@ -27,29 +27,93 @@ if (navigator.userAgent.indexOf('Chrome') !== -1) {
     currentBrowser = browser;
 }
 
-function changeUrl (tab, click) {
+const getDebugQuery = (tab, target) => {
+    /*
+    5 cases:
+    - debug=1 (simple debug)
+    - debug=assets (full js/css files)
+    - debug=tests (add js test files)
+    - debug=assets,tests (both above)
+    - / (no debug)
+    */
+    const url = tab.url;
+    if (target === "tests") {
+        if (url.indexOf("?debug=") === -1)
+            return "tests";
+
+        if (url.indexOf("?debug=assets") === 1)
+            return "assetstests";
+
+        if (url.indexOf("?debug=assets,tests") === 1)
+            return "assets";
+
+        if (url.indexOf("?debug=1") === 1) {
+            return "tests";
+        }
+        // already in test
+        return false;
+    } else if (target === "1") {
+        if (url.indexOf("?debug=") === -1)
+            return "1";
+
+        if (url.indexOf("?debug=assets,tests") === 1)
+            return "tests";
+
+        // already in 1, assets or tests
+        return false;
+    } else {
+        if (url.indexOf("?debug=") === -1)
+            return "assets";
+
+        if (url.indexOf("?debug=assets,tests") === 1)
+            return "tests";
+
+        if (url.indexOf("?debug=1") === 1) {
+            return "assets";
+        }
+
+        if (url.indexOf("?debug=tests") === 1) {
+            return "assetstests";
+        }
+
+        // already in assets
+        return false;
+    }
+
+};
+
+
+const changeUrl = (tab, click, mode) => {
     var url = '';
     var el = document.createElement('a');
     el.href = tab.url;
-    if (el.search.indexOf('?debug') !== -1) {
-        if (click === 2 && el.search.indexOf('?debug=assets') === -1) {
-            url = el.origin + el.pathname + '?debug=assets' + el.hash;
-            currentBrowser.browserAction.setIcon({path: 'super_on.png'});
-        } else {
-            url = el.origin + el.pathname + el.hash;
-            currentBrowser.browserAction.setIcon({path: 'off.png'});
-        }
+    if (click === 1) {
+        var newMode = getDebugQuery(tab, mode === "tests" && "tests" || "1");
     } else {
-        if (click === 1) {
-            url = el.origin + el.pathname + '?debug' + el.hash;
-            currentBrowser.browserAction.setIcon({path: 'on.png'});
+        if (mode === "1" || mode === "assets") {
+            var newMode = getDebugQuery(tab, "assets");
         } else {
-            url = el.origin + el.pathname + '?debug=assets' + el.hash;
-            currentBrowser.browserAction.setIcon({path: 'super_on.png'});
+            var newMode = getDebugQuery(tab, "tests");
         }
     }
+    if (newMode === "1") {
+        var query = "?debug=1";
+        currentBrowser.browserAction.setIcon({path: 'on.png'});
+    } else if (newMode === "assets") {
+        var query = "?debug=assets";
+        currentBrowser.browserAction.setIcon({path: 'super_on.png'});
+    } else if (newMode === "tests") {
+        var query = "?debug=tests";
+        currentBrowser.browserAction.setIcon({path: 'on.png'});
+    } else if (newMode === "assetstests") {
+        var query = "?debug=assets,tests";
+        currentBrowser.browserAction.setIcon({path: 'super_on.png'});
+    } else {
+        var query = "";
+    }
+    url = el.origin + el.pathname + query + el.hash;
     currentBrowser.tabs.update(tab.id, {url: url});
-}
+};
 
 function changeIcon () {
     currentBrowser.tabs.query({active: true, currentWindow: true}, function (tab) {
@@ -72,7 +136,7 @@ function changeIcon () {
 currentBrowser.browserAction.onClicked.addListener(
     new onClickListener(
         function onclick(tab, click) {
-            changeUrl(tab, click);
+            changeUrl(tab, click, "1");
         },
     )
 );
