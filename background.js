@@ -27,52 +27,55 @@ if (navigator.userAgent.indexOf('Chrome') !== -1) {
     currentBrowser = browser;
 }
 
-function changeUrl (tab, click) {
+function changeUrl (tab, click, response) {
     var url = '';
     var el = document.createElement('a');
     el.href = tab.url;
-    if (el.search.indexOf('?debug') !== -1) {
-        if (click === 2 && el.search.indexOf('?debug=assets') === -1) {
-            url = el.origin + el.pathname + '?debug=assets' + el.hash;
-            currentBrowser.browserAction.setIcon({path: 'super_on.png'});
-        } else {
-            url = el.origin + el.pathname + el.hash;
-            currentBrowser.browserAction.setIcon({path: 'off.png'});
-        }
+    var debugMode = response.debug_mode;
+    if (debugMode && click === 1) {
+        url = el.origin + el.pathname + '?debug' + el.hash;
+        currentBrowser.browserAction.setIcon({path: 'off.png'});
     } else {
         if (click === 1) {
-            url = el.origin + el.pathname + '?debug' + el.hash;
+            url = el.origin + el.pathname + '?debug=1' + el.hash;
             currentBrowser.browserAction.setIcon({path: 'on.png'});
-        } else {
+        } else if (click === 2) {
             url = el.origin + el.pathname + '?debug=assets' + el.hash;
             currentBrowser.browserAction.setIcon({path: 'super_on.png'});
+        } else {
+            url = el.origin + el.pathname + '?debug=tests' + el.hash;
+            currentBrowser.browserAction.setIcon({path: 'tests.png'});
         }
     }
     currentBrowser.tabs.update(tab.id, {url: url});
 }
 
 function changeIcon () {
-    currentBrowser.tabs.query({active: true, currentWindow: true}, function (tab) {
-        if (tab.length) {
-            var icon = 'off.png';
-            var el = document.createElement('a');
-            el.href = tab[0].url;
-            if (el.search.indexOf('?debug') !== -1) {
-                if (el.search.indexOf('?debug=assets') !== -1) {
-                    icon = 'super_on.png';
-                } else {
-                    icon = 'on.png';
-                }
-            }
-            currentBrowser.browserAction.setIcon({path: icon});
+    currentBrowser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+        if (tabs.length) {
+            currentBrowser.tabs.sendMessage(tabs[0].id, {action: "get_debug_mode"}, function(response) {
+                  var icon = 'off.png';
+                  var debugMode = response.debug_mode;
+                  if (debugMode) {
+                      if (debugMode === 'assets') {
+                          icon = 'super_on.png';
+                      } else if (debugMode === 'tests') {
+                          icon = 'tests.png';
+                      } else {
+                          icon = 'on.png';
+                      }
+                  }
+                  currentBrowser.browserAction.setIcon({path: icon});
+            });
         }
     });
 }
-
 currentBrowser.browserAction.onClicked.addListener(
     new onClickListener(
         function onclick(tab, click) {
-            changeUrl(tab, click);
+            currentBrowser.tabs.sendMessage(tab.id, {action: "get_debug_mode"}, function(response) {
+                changeUrl(tab, click, response);
+            });
         },
     )
 );
