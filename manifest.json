@@ -1,6 +1,6 @@
 {
     "name": "Odoo Debug",
-    "version": "3.8",
+    "version": "4.0",
     "manifest_version": 2,
     "description": "Minimal and fast extension to toggle debug mode of Odoo",
     "short_name": "Odoo Debug",
@@ -24,6 +24,19 @@
             }
         }
     },
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "contentScript.js"
+            ]
+        }
+    ],
+    "web_accessible_resources": [
+        "pageScript.js"
+    ],
     "applications": {
         "gecko": {
             "id": "odoo-debug-extension@odoo.com"
