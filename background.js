@@ -27,44 +27,53 @@ if (navigator.userAgent.indexOf('Chrome') !== -1) {
     currentBrowser = browser;
 }
 
-function changeUrl (tab, click) {
-    var url = '';
-    var el = document.createElement('a');
-    el.href = tab.url;
-    if (el.search.indexOf('?debug') !== -1) {
-        if (click === 2 && el.search.indexOf('?debug=assets') === -1) {
-            url = el.origin + el.pathname + '?debug=assets' + el.hash;
-            currentBrowser.browserAction.setIcon({path: 'super_on.png'});
-        } else {
-            url = el.origin + el.pathname + el.hash;
-            currentBrowser.browserAction.setIcon({path: 'off.png'});
+var debugMode = '';
+var odooVersion = 'legacy';
+
+function onClickActivateDebugMode (tab, click) {
+    var hyperLinkEl = document.createElement('a');
+    hyperLinkEl.href = tab.url;
+    var url = hyperLinkEl.origin + hyperLinkEl.pathname + (odooVersion === 'legacy' ? '' : '?debug=0') + hyperLinkEl.hash;
+    var icon = 'off.png';
+
+    if (debugMode !== '') {
+        if (click === 2) {
+            url = hyperLinkEl.origin + hyperLinkEl.pathname + '?debug=assets' + hyperLinkEl.hash;
+            icon = 'super_on.png';
         }
     } else {
         if (click === 1) {
-            url = el.origin + el.pathname + '?debug' + el.hash;
-            currentBrowser.browserAction.setIcon({path: 'on.png'});
-        } else {
-            url = el.origin + el.pathname + '?debug=assets' + el.hash;
-            currentBrowser.browserAction.setIcon({path: 'super_on.png'});
+            url = hyperLinkEl.origin + hyperLinkEl.pathname + '?debug=1' + hyperLinkEl.hash;
+            icon = 'on.png';
+        } else if (click === 2) {
+            url = hyperLinkEl.origin + hyperLinkEl.pathname + '?debug=assets' + hyperLinkEl.hash;
+            icon = 'super_on.png';
         }
     }
+
+    currentBrowser.browserAction.setIcon({path: icon});
     currentBrowser.tabs.update(tab.id, {url: url});
 }
 
-function changeIcon () {
-    currentBrowser.tabs.query({active: true, currentWindow: true}, function (tab) {
-        if (tab.length) {
-            var icon = 'off.png';
-            var el = document.createElement('a');
-            el.href = tab[0].url;
-            if (el.search.indexOf('?debug') !== -1) {
-                if (el.search.indexOf('?debug=assets') !== -1) {
-                    icon = 'super_on.png';
-                } else {
-                    icon = 'on.png';
+function adaptIcon () {
+    currentBrowser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+        if (tabs.length) {
+            currentBrowser.tabs.sendMessage(tabs[0].id, {message: 'get_info'}, function (response) {
+                if (chrome.runtime.lastError) {
+                    return;
                 }
-            }
-            currentBrowser.browserAction.setIcon({path: icon});
+                var icon = 'off.png';
+                if (response) {
+                    if (response.debug_mode === 'assets') {
+                        icon = 'super_on.png';
+                    } else if (response.debug_mode === '1') {
+                        icon = 'on.png';
+                    }
+                    odooVersion = response.odoo_version;
+                    debugMode = response.debug_mode;
+                }
+                currentBrowser.browserAction.setIcon({path: icon});
+            });
         }
     });
 }
@@ -72,16 +81,16 @@ function changeIcon () {
 currentBrowser.browserAction.onClicked.addListener(
     new onClickListener(
         function onclick(tab, click) {
-            changeUrl(tab, click);
+            onClickActivateDebugMode(tab, click);
         },
     )
 );
 currentBrowser.tabs.onActivated.addListener(function () {
-    changeIcon();
+    adaptIcon();
 });
 currentBrowser.tabs.onUpdated.addListener(function () {
-    changeIcon();
+    adaptIcon();
 });
 currentBrowser.windows.onFocusChanged.addListener(function () {
-    changeIcon();
+    adaptIcon();
 });
