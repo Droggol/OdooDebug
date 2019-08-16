@@ -1,9 +1,9 @@
 if (window.hasOwnProperty('odoo') && odoo && odoo.hasOwnProperty('debug')) {
-    var body = document.getElementsByTagName('body')[0];
-    var odooVersion = 'legacy';
-    var debugMode = '';
+    const body = document.getElementsByTagName('body')[0];
+    let odooVersion = 'legacy';
+    let debugMode = '';
     if (typeof odoo.debug === 'boolean') {
-        var url = window.location.href;
+        const url = window.location.href;
         if (url.indexOf('?debug=assets') !== -1) {
             debugMode = 'assets';
         } else if (url.indexOf('?debug') !== -1) {
