@@ -1,5 +1,5 @@
 let currentBrowser;
-if (navigator.userAgent.indexOf('Chrome') !== -1) {
+if (typeof chrome == 'object') {
     currentBrowser = chrome;
 } else {
     currentBrowser = browser;
