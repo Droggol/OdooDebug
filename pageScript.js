@@ -4,9 +4,9 @@ if (window.hasOwnProperty('odoo') && odoo && odoo.hasOwnProperty('debug')) {
     let debugMode = '';
     if (typeof odoo.debug === 'boolean') {
         const url = window.location.href;
-        if (url.indexOf('?debug=assets') !== -1) {
+        if (url.search(/[&|?]debug=assets/) !== -1) {
             debugMode = 'assets';
-        } else if (url.indexOf('?debug') !== -1) {
+        } else if (url.search(/[&|?]debug/) !== -1) {
             debugMode = '1';
         }
     } else {

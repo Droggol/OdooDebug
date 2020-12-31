@@ -31,25 +31,20 @@ let debugMode = '';
 let odooVersion = 'legacy';
 
 let onClickActivateDebugMode = (tab, click) => {
+    const debugOptions = {
+        0: [odooVersion === 'legacy' ? '' : 'debug=0', 'off.png'],
+        1: ['debug=1', 'on.png'],
+        2: ['debug=assets', 'super_on.png'],
+    }
     const hyperLinkEl = document.createElement('a');
     hyperLinkEl.href = tab.url;
-    let url = hyperLinkEl.origin + hyperLinkEl.pathname + (odooVersion === 'legacy' ? '' : '?debug=0') + hyperLinkEl.hash;
-    let path = 'off.png';
 
-    if (debugMode !== '') {
-        if (click === 2) {
-            url = hyperLinkEl.origin + hyperLinkEl.pathname + '?debug=assets' + hyperLinkEl.hash;
-            path = 'super_on.png';
-        }
-    } else {
-        if (click === 1) {
-            url = hyperLinkEl.origin + hyperLinkEl.pathname + '?debug=1' + hyperLinkEl.hash;
-            path = 'on.png';
-        } else if (click === 2) {
-            url = hyperLinkEl.origin + hyperLinkEl.pathname + '?debug=assets' + hyperLinkEl.hash;
-            path = 'super_on.png';
-        }
-    }
+    const selectedMode = debugMode && click === 1 ? 0 : click;
+    const search = hyperLinkEl.search.split(/[&|?]debug=(0|1|assets)/)[0];
+    const symbol = search ? '&' : '?';    
+    const [debugOption, path] = debugOptions[selectedMode];
+
+    const url = hyperLinkEl.origin + hyperLinkEl.pathname + `${search}${debugOption && symbol}${debugOption}` + hyperLinkEl.hash;
 
     currentBrowser.browserAction.setIcon({path});
     currentBrowser.tabs.update(tab.id, {url});
