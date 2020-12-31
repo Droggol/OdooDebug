@@ -1,6 +1,6 @@
 {
     "name": "Odoo Debug",
-    "version": "4.0",
+    "version": "4.1",
     "manifest_version": 2,
     "description": "Minimal and fast extension to toggle debug mode of Odoo",
     "short_name": "Odoo Debug",
