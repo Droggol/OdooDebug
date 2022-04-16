@@ -1,7 +1,7 @@
 if (window.hasOwnProperty('odoo') && odoo && odoo.hasOwnProperty('debug')) {
-    const body = document.getElementsByTagName('body')[0];
     let odooVersion = 'legacy';
     let debugMode = '';
+    const body = document.getElementsByTagName('body')[0];
     if (typeof odoo.debug === 'boolean') {
         const url = window.location.href;
         if (url.search(/[&|?]debug=assets/) !== -1) {
@@ -13,10 +13,7 @@ if (window.hasOwnProperty('odoo') && odoo && odoo.hasOwnProperty('debug')) {
         odooVersion = 'new';
         debugMode = odoo.debug;
     }
-    // In Firefox Odoo add '0' for no debug instead of empty string ''.
-    if (debugMode === '0') {
-        debugMode = '';
-    }
-    body.setAttribute('data-odoo-version', odooVersion);
-    body.setAttribute('data-debug-mode', debugMode);
+    debugMode = debugMode === '0' ? '' : debugMode;  // In Firefox Odoo add '0' for no debug instead of empty string ''.
+    body.setAttribute('data-odoo', odooVersion);
+    body.setAttribute('data-odoo-debug-mode', debugMode);
 }

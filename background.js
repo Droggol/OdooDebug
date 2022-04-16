@@ -1,3 +1,5 @@
+const browserAction = typeof browser == 'object' ? chrome.browserAction : chrome.action; // Firefox compatibility
+
 class onClickListener {
     constructor(callback) {
         const CONTROL_TIME = 500; // Max time between click events occurrence
@@ -20,62 +22,61 @@ class onClickListener {
     }
 }
 
-let currentBrowser;
-if (navigator.userAgent.indexOf('Chrome') !== -1) {
-    currentBrowser = chrome;
-} else {
-    currentBrowser = browser;
-}
-
 let debugMode = '';
-let odooVersion = 'legacy';
+let odooVersion = false;
 
-let onClickActivateDebugMode = (tab, click) => {
-    const debugOptions = {
-        0: [odooVersion === 'legacy' ? '' : 'debug=0', 'off.png'],
-        1: ['debug=1', 'on.png'],
-        2: ['debug=assets', 'super_on.png'],
+const onClickActivateDebugMode = (tab, click) => {
+    if (odooVersion) {
+        const debugOptions = {
+            0: [odooVersion === 'legacy' ? '' : 'debug=0', '/images/icons/off_16.png'],
+            1: ['debug=1', '/images/icons/on_16.png'],
+            2: ['debug=assets', '/images/icons/super_16.png'],
+        }
+
+        if (debugMode) {
+            click = click > 2 ? 0 : click;
+        } else {
+            click = click > 2 ? 1 : click;
+        }
+        const selectedMode = debugMode && click === 1 ? 0 : click;
+        const tabUrl = new URL(tab.url);
+        const search = tabUrl.search.split(/[&|?]debug=(0|1|assets)/)[0];
+        const symbol = search ? '&' : '?';
+        const [debugOption, path] = debugOptions[selectedMode];
+        const url = tabUrl.origin + tabUrl.pathname + `${search}${debugOption && symbol}${debugOption}` + tabUrl.hash;
+
+        browserAction.setIcon({path});
+        chrome.tabs.update(tab.id, {url});
     }
-    const hyperLinkEl = document.createElement('a');
-    hyperLinkEl.href = tab.url;
-
-    const selectedMode = debugMode && click === 1 ? 0 : click;
-    const search = hyperLinkEl.search.split(/[&|?]debug=(0|1|assets)/)[0];
-    const symbol = search ? '&' : '?';    
-    const [debugOption, path] = debugOptions[selectedMode];
-
-    const url = hyperLinkEl.origin + hyperLinkEl.pathname + `${search}${debugOption && symbol}${debugOption}` + hyperLinkEl.hash;
-
-    currentBrowser.browserAction.setIcon({path});
-    currentBrowser.tabs.update(tab.id, {url});
 }
 
-let adaptIcon = () => {
-    currentBrowser.tabs.query({active: true, currentWindow: true}, tabs => {
+const adaptIcon = () => {
+    chrome.tabs.query({active: true, currentWindow: true}, tabs => {
         if (tabs.length) {
-            currentBrowser.tabs.sendMessage(tabs[0].id, {message: 'get_info'}, response => {
+            chrome.tabs.sendMessage(tabs[0].id, {message: 'getOdooDebugInfo'}, response => {
                 if (chrome.runtime.lastError) {
                     return;
                 }
-                let path = 'off.png';
-                if (response) {
-                    if (response.debug_mode === 'assets') {
-                        path = 'super_on.png';
-                    } else if (response.debug_mode === '1') {
-                        path = 'on.png';
+                if (response.odooVersion) {
+                    let path = '/images/icons/off_16.png';
+                    if (response.debugMode === 'assets') {
+                        path = '/images/icons/super_16.png';
+                    } else if (response.debugMode === '1') {
+                        path = '/images/icons/on_16.png';
                     }
-                    odooVersion = response.odoo_version;
-                    debugMode = response.debug_mode;
+                    odooVersion = response.odooVersion;
+                    debugMode = response.debugMode;
+                    browserAction.setIcon({ path });
+                } else {
+                    odooVersion = false;
+                    browserAction.setIcon({ path: '/images/icons/no_debug_16.png' });
                 }
-                currentBrowser.browserAction.setIcon({path});
             });
         }
     });
 }
 
-currentBrowser.browserAction.onClicked.addListener(
-    new onClickListener((tab, click) => onClickActivateDebugMode(tab, click))
-);
-currentBrowser.tabs.onActivated.addListener(adaptIcon);
-currentBrowser.tabs.onUpdated.addListener(adaptIcon);
-currentBrowser.windows.onFocusChanged.addListener(adaptIcon);
+browserAction.onClicked.addListener(new onClickListener((tab, click) => onClickActivateDebugMode(tab, click)));
+chrome.tabs.onActivated.addListener(adaptIcon);
+chrome.tabs.onUpdated.addListener(adaptIcon);
+chrome.windows.onFocusChanged.addListener(adaptIcon);

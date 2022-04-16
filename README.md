@@ -1,5 +1,5 @@
 <h1 align="center">
-    <img src="https://raw.githubusercontent.com/pga-odoo/OdooDebug/master/off.png"/>
+    <img src="images/icons/off_64.png"/>
     <div>Odoo Debug</div>
     <div>
         <a href="https://chrome.google.com/webstore/detail/odoo-debug/hmdmhilocobgohohpdpolmibjklfgkbi">
@@ -38,16 +38,24 @@ Minimal and fast extension to toggle debug mode of <a href="https://www.odoo.com
 
 #### Using keyboard
 - Press `Ctrl + .` for normal debug.
-- Press `Ctrl + . + .` for debug with assets. (Hold `ctrl` and press `.` twice)
+- Press `Ctrl + . (twice)` for debug with assets.
 
 *Note: Use cmd ⌘ in mac*
 
 ## Contributors
-<a href="https://github.com/pga-odoo/OdooDebug/graphs/contributors">
-    <img src="https://contributors-img.firebaseapp.com/image?repo=pga-odoo/OdooDebug"/>
+<a href="https://github.com/Droggol/OdooDebug/graphs/contributors">
+    <img src="https://contributors-img.firebaseapp.com/image?repo=Droggol/OdooDebug"/>
 </a>
 
 ## License
-Code licensed under <a href="https://github.com/pga-odoo/OdooDebug/blob/master/LICENSE">GNU Affero General Public License v3.0</a>.
+Code licensed under [GNU Affero General Public License v3.0](LICENSE).
 
 Emoji art supplied by <a href="http://emojione.com">EmojiOne</a>
+
+<a href="https://www.droggol.com">
+    <img src="images/logo.png" width="128" height="56"/>
+</a>
+
+## Other Tools
+- [Odoo Utility](https://github.com/Droggol/odoo-utility) Browser Extension
+- [Odoo Snippets](https://github.com/Droggol/VscOdooSnippets) for Visual Studio Code
