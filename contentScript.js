@@ -1,23 +1,19 @@
-let currentBrowser;
-if (typeof chrome == 'object') {
-    currentBrowser = chrome;
-} else {
-    currentBrowser = browser;
-}
+const getURL = typeof browser == 'object' ? chrome.extension.getURL : chrome.runtime.getURL; // Firefox compatibility
 
 const scriptEl = document.createElement('script');
-scriptEl.src = currentBrowser.extension.getURL('pageScript.js');
+scriptEl.src = getURL('pageScript.js');
 (document.head || document.documentElement).appendChild(scriptEl);
-scriptEl.onload = () => scriptEl.parentNode.removeChild(scriptEl);
 
-currentBrowser.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.message === 'get_info') {
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.message === 'getOdooDebugInfo') {
         const body = document.getElementsByTagName('body')[0];
-        if (body) {
+        if (body && body.hasAttribute('data-odoo')) {
             sendResponse({
-                odoo_version: body.getAttribute('data-odoo-version'),
-                debug_mode: body.getAttribute('data-debug-mode'),
+                odooVersion: body.getAttribute('data-odoo'),
+                debugMode: body.getAttribute('data-odoo-debug-mode'),
             });
+        } else {
+            sendResponse({ odooVersion: false });
         }
     }
 });
