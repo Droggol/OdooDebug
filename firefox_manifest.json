@@ -1,0 +1,38 @@
+{
+    "name": "Odoo Debug",
+    "version": "5.0",
+    "manifest_version": 2,
+    "description": "Minimal and fast extension to toggle debug mode of Odoo",
+    "short_name": "Odoo Debug",
+    "browser_action": {
+        "default_icon": "/images/icons/off_48.png",
+        "default_title": "- Click for normal debug \n- Double click for debug with assets"
+    },
+    "incognito": "spanning",
+    "background": {
+        "scripts": ["background.js"]
+    },
+    "permissions": ["tabs"],
+    "icons": {
+        "48": "/images/icons/off_48.png"
+    },
+    "commands": {
+        "_execute_browser_action": {
+            "suggested_key": {
+                "default": "Ctrl+Period"
+            }
+        }
+    },
+    "content_scripts": [{
+        "matches": ["<all_urls>"],
+        "js": ["contentScript.js"]
+    }],
+    "web_accessible_resources": [
+        "pageScript.js"
+    ],
+    "applications": {
+        "gecko": {
+            "id": "odoo-debug-extension@odoo.com"
+        }
+    }
+}
