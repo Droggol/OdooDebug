@@ -1,4 +1,4 @@
-const browserAction = typeof browser == 'object' ? chrome.browserAction : chrome.action; // Firefox compatibility
+const browserAction = typeof browser == 'object' ? chrome.browserAction : chrome.action; // Browser compatibility
 
 class onClickListener {
     constructor(callback) {
@@ -23,30 +23,23 @@ class onClickListener {
 }
 
 let debugMode = '';
-let odooVersion = false;
+let odooVersion = 'legacy';
 
 const onClickActivateDebugMode = (tab, click) => {
-    if (odooVersion) {
+    if (click <= 2) {
         const debugOptions = {
-            0: [odooVersion === 'legacy' ? '' : 'debug=0', '/images/icons/off_16.png'],
-            1: ['debug=1', '/images/icons/on_16.png'],
-            2: ['debug=assets', '/images/icons/super_16.png'],
-        }
-
-        if (debugMode) {
-            click = click > 2 ? 0 : click;
-        } else {
-            click = click > 2 ? 1 : click;
-        }
+            0: [odooVersion === 'legacy' ? '' : '0', '/images/icons/off_48.png'],
+            1: ['1', '/images/icons/on_48.png'],
+            2: ['assets', '/images/icons/super_48.png'],
+        };
         const selectedMode = debugMode && click === 1 ? 0 : click;
         const tabUrl = new URL(tab.url);
-        const search = tabUrl.search.split(/[&|?]debug=(0|1|assets)/)[0];
-        const symbol = search ? '&' : '?';
         const [debugOption, path] = debugOptions[selectedMode];
-        const url = tabUrl.origin + tabUrl.pathname + `${search}${debugOption && symbol}${debugOption}` + tabUrl.hash;
-
-        browserAction.setIcon({path});
-        chrome.tabs.update(tab.id, {url});
+        const params = new URLSearchParams(tabUrl.search);
+        params.set('debug', debugOption);
+        const url = tabUrl.origin + tabUrl.pathname + `?${params.toString()}` + tabUrl.hash;
+        browserAction.setIcon({ path });
+        chrome.tabs.update(tab.id, { url });
     }
 }
 
@@ -57,20 +50,17 @@ const adaptIcon = () => {
                 if (chrome.runtime.lastError) {
                     return;
                 }
+                let path = '/images/icons/off_48.png';
                 if (response.odooVersion) {
-                    let path = '/images/icons/off_16.png';
                     if (response.debugMode === 'assets') {
-                        path = '/images/icons/super_16.png';
+                        path = '/images/icons/super_48.png';
                     } else if (response.debugMode === '1') {
-                        path = '/images/icons/on_16.png';
+                        path = '/images/icons/on_48.png';
                     }
                     odooVersion = response.odooVersion;
                     debugMode = response.debugMode;
-                    browserAction.setIcon({ path });
-                } else {
-                    odooVersion = false;
-                    browserAction.setIcon({ path: '/images/icons/no_debug_16.png' });
                 }
+                browserAction.setIcon({ path });
             });
         }
     });

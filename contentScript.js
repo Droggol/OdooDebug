@@ -1,4 +1,4 @@
-const getURL = typeof browser == 'object' ? chrome.extension.getURL : chrome.runtime.getURL; // Firefox compatibility
+const getURL = typeof browser == 'object' ? chrome.extension.getURL : chrome.runtime.getURL; // Browser compatibility
 
 const scriptEl = document.createElement('script');
 scriptEl.src = getURL('pageScript.js');
