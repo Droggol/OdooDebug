@@ -1,38 +1,41 @@
 {
+    "manifest_version": 3,
     "name": "Odoo Debug",
     "version": "5.0",
-    "manifest_version": 2,
     "description": "Minimal and fast extension to toggle debug mode of Odoo",
-    "short_name": "Odoo Debug",
-    "browser_action": {
-        "default_icon": "/images/icons/off_48.png",
-        "default_title": "- Click for normal debug \n- Double click for debug with assets"
+    "action": {
+        "default_title": "- Click for normal debug \n- Double click for debug with assets",
+        "default_icon": {
+            "16": "/images/icons/off_16.png",
+            "32": "/images/icons/off_32.png",
+            "48": "/images/icons/off_48.png"
+        }
     },
-    "incognito": "spanning",
-    "background": {
-        "scripts": ["background.js"]
-    },
-    "permissions": ["tabs"],
     "icons": {
+        "16": "/images/icons/off_16.png",
+        "32": "/images/icons/off_32.png",
         "48": "/images/icons/off_48.png"
     },
-    "commands": {
-        "_execute_browser_action": {
-            "suggested_key": {
-                "default": "Ctrl+Period"
-            }
-        }
+    "author": "Droggol Infotech Private Limited",
+    "background": {
+        "service_worker": "background.js"
     },
     "content_scripts": [{
         "matches": ["<all_urls>"],
         "js": ["contentScript.js"]
     }],
-    "web_accessible_resources": [
-        "pageScript.js"
-    ],
-    "applications": {
-        "gecko": {
-            "id": "odoo-debug-extension@odoo.com"
+    "commands": {
+        "_execute_action": {
+            "suggested_key": {
+                "default": "Ctrl+Period"
+            }
         }
-    }
+    },
+    "incognito": "spanning",
+    "offline_enabled": true,
+    "permissions": ["tabs"],
+    "web_accessible_resources": [{ 
+        "resources": ["pageScript.js"],
+        "matches": ["<all_urls>"]
+    }]
 }
